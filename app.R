@@ -99,8 +99,8 @@ ui <- material_page(
   title = "Custo Médio Gerencial",
   nav_bar_color = "indigo",
   material_tabs(
-    tabs = c("Resumo" = "resumo",
-             "Cenário" = "cenario")
+    tabs = c("Cenário" = "resumo",
+             "Comparação de cenários" = "cenario")
   ),
   
   material_tab_content(
@@ -138,13 +138,13 @@ server <- function(input, output, session) {
           k = input$fator,
           d = input$dura,
           et = input$exte,
-          peca = input$pavi_a,
-          pecb = input$pavi_b,
-          pecc = input$pavi_c,
-          pecd = input$pavi_d,
-          pece = input$pavi_e,
-          pecf = input$pavi_f,
-          pecg = input$pavi_g)
+          peca = input$pavi_a/100,
+          pecb = input$pavi_b/100,
+          pecc = input$pavi_c/100,
+          pecd = input$pavi_d/100,
+          pece = input$pavi_e/100,
+          pecf = input$pavi_f/100,
+          pecg = input$pavi_g/100)
     
     tabela <- 
       tibble(cenario = input$name, 
@@ -167,8 +167,9 @@ server <- function(input, output, session) {
     
     tabela() %>% 
       datatable(rownames = FALSE, 
-                colnames = c("Cenário", "Custos", "Valores (R$)"),
-                options = list(dom = "t"))
+                colnames = c("Cenário", "Custos", "Valores"),
+                options = list(dom = "t", columnDefs = list(list(className = 'dt-center', targets = 2)))) %>% 
+      formatCurrency(columns = "custos", digits = 2, mark = ".", dec.mark = ",", currency = "R$")
     
   })
   
@@ -193,9 +194,10 @@ server <- function(input, output, session) {
   
   output$cenarios <- renderDataTable({
     datatable(tbl(conn, "cenarios") %>% as_tibble(), 
-              options = list(dom = "tip", pageLength = 6),
+              options = list(dom = "tip", pageLength = 6, columnDefs = list(list(className = 'dt-center', targets = 2))),
               colnames = c("Cenário", "Custos", "Valores (R$)"),
-              rownames = FALSE)
+              rownames = FALSE) %>% 
+      formatCurrency(columns = "custos", digits = 2, mark = ".", dec.mark = ",", currency = "R$")
   })
   
   output$plotcenarios <- renderPlotly({
@@ -208,9 +210,9 @@ server <- function(input, output, session) {
                                             "Canteiro de obras (CM3)",
                                             "Terraplenagem, drenagem e OAC, obras complementares, sinalização e proteção ambiental (CM4)",
                                             "Pavimentação, aquisição e transporte de material betuminoso  (CM5)"))) %>% 
-      ggplot(aes(cenario, custos, fill = desc, text = glue("{desc} <br> Cenário: {cenario} <br> R$ {custos}"))) + 
+      ggplot(aes(cenario, custos/1000000, fill = desc, text = glue("{desc} <br> Cenário: {cenario} <br> R${format(custos, big.mark = '.', decimal.mark = ',')}"))) + 
       geom_col() +
-      labs(x = "Cenários", y = "Custos (R$)", fill = "") +
+      labs(x = "Cenários", y = "Custos em milhões (R$)", fill = "") +
       guides(fill = FALSE) +
       theme_minimal()
     

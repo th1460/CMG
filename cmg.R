@@ -68,17 +68,3 @@ cmg <- function(porte, relevo, classe, padrao, pavimento, k, d, et,
   
 }
 
-custos <- cmg(porte = "Pequeno", 
-    relevo = "Ondulado", 
-    classe = "I-A",
-    padrao = "Provisório",
-    k = 1,
-    d = 36,
-    et = 40,
-    peca = .7,
-    pecb = .3,
-    pecc = 0,
-    pecd = 0,
-    pece = 0,
-    pecf = 0,
-    pecg = 0)
